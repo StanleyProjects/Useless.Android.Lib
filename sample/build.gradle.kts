@@ -56,4 +56,5 @@ androidComponents.onVariants { variant ->
 
 dependencies {
     implementation(project(":lib"))
+    implementation("androidx.activity:activity:1.10.1")
 }
