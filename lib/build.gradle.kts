@@ -127,27 +127,25 @@ fun assembleSource(variant: BaseVariant) {
 }
 */
 
-/*
 fun assembleMetadata(variant: BaseVariant) {
-    task(camelCase("assemble", variant.name, "Metadata")) {
+    tasks.create("assemble", variant.name, "Metadata") {
         doLast {
-            val file = layout.buildDirectory.get()
-                .dir("yml")
-                .dir(variant.name)
-                .file("metadata.yml")
-                .assemble(
-                    """
-                        repository:
-                         owner: '${gh.owner}'
-                         name: '${gh.name}'
-                        version: '${variant.getVersion()}'
-                    """.trimIndent(),
-                )
+            val target = buildDir().dir("yml").file("metadata.yml")
+            val file = gh.assemble(version = variant.getVersion(), target = target)
             println("Metadata: ${file.absolutePath}")
         }
     }
 }
-*/
+
+fun assembleMavenMetadata(variant: BaseVariant) {
+    tasks.create("assemble", variant.name, "MavenMetadata") {
+        doLast {
+            val target = buildDir().dir("yml").file("maven-metadata.yml")
+            val file = maven.assemble(version = variant.getVersion(), target = target)
+            println("Maven metadata: ${file.absolutePath}")
+        }
+    }
+}
 
 android {
     namespace = "sp.useless.android"
@@ -184,7 +182,8 @@ android {
 //        checkReadme(variant)
 //        assemblePom(variant)
 //        assembleSource(variant)
-//        assembleMetadata(variant)
+        assembleMetadata(variant = variant)
+        assembleMavenMetadata(variant = variant)
         afterEvaluate {
             tasks.getByName<JavaCompile>(camelCase("compile", variant.name, "JavaWithJavac")) {
                 targetCompatibility = Version.jvmTarget
