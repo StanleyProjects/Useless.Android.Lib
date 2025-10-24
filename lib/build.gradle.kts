@@ -2,19 +2,14 @@ import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.LibraryVariant
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import sp.kx.gradlex.GitHub
-import sp.kx.gradlex.Markdown
 import sp.kx.gradlex.Maven
 import sp.kx.gradlex.add
 import sp.kx.gradlex.asFile
 import sp.kx.gradlex.assemble
 import sp.kx.gradlex.buildDir
-import sp.kx.gradlex.buildSrc
 import sp.kx.gradlex.camelCase
-import sp.kx.gradlex.check
 import sp.kx.gradlex.create
-import sp.kx.gradlex.dir
 import sp.kx.gradlex.eff
-import sp.kx.gradlex.get
 
 version = "0.0.1"
 
@@ -85,47 +80,40 @@ fun checkReadme(variant: BaseVariant) {
 }
 */
 
-/*
 fun assemblePom(variant: BaseVariant) {
     tasks.create("assemble", variant.name, "Pom") {
         doLast {
-            val file = buildDir()
+            val version = variant.getVersion()
+            val target = buildDir()
                 .dir("xml")
                 .dir(variant.name)
-                .file("maven.pom.xml")
-                .assemble(
-                    maven.pom(
-                        version = variant.getVersion(),
-                        packaging = "aar",
-                    ),
-                )
+                .file("${maven.name(version = version)}.pom")
+            val text = maven.pom(version = version, packaging = "aar")
+            val file = target.assemble(text = text)
             println("POM: ${file.absolutePath}")
         }
     }
 }
-*/
 
-/*
 fun assembleSource(variant: BaseVariant) {
-    task<Jar>("assemble", variant.name, "Source") {
+    tasks.add<Jar>("assemble", variant.name, "Source") {
         val sourceSets = variant.sourceSets.flatMap { it.kotlinDirectories }.distinctBy { it.absolutePath }
         from(sourceSets)
-        val dir = buildDir()
+        val file = buildDir()
             .dir("sources")
-            .asFile(variant.name)
-        val file = File(dir, "${maven.name(variant.getVersion())}-sources.jar")
+            .dir(variant.name)
+            .asFile("${maven.name(variant.getVersion())}-sources.jar")
         outputs.upToDateWhen {
             file.exists()
         }
         doLast {
-            dir.mkdirs()
-            val renamed = archiveFile.get().asFile.existing().file().filled().renameTo(file)
+            file.parentFile!!.mkdirs()
+            val renamed = archiveFile.get().asFile.eff().renameTo(file)
             check(renamed)
             println("Archive: ${file.absolutePath}")
         }
     }
 }
-*/
 
 fun assembleMetadata(variant: BaseVariant) {
     tasks.create("assemble", variant.name, "Metadata") {
@@ -180,8 +168,8 @@ android {
         check(output is com.android.build.gradle.internal.api.LibraryVariantOutputImpl)
         output.outputFileName = "${rootProject.name}-${variant.getVersion()}.aar"
 //        checkReadme(variant)
-//        assemblePom(variant)
-//        assembleSource(variant)
+        assemblePom(variant = variant)
+        assembleSource(variant = variant)
         assembleMetadata(variant = variant)
         assembleMavenMetadata(variant = variant)
         afterEvaluate {
