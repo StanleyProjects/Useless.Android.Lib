@@ -2,12 +2,14 @@ import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.LibraryVariant
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import sp.kx.gradlex.GitHub
+import sp.kx.gradlex.Markdown
 import sp.kx.gradlex.Maven
 import sp.kx.gradlex.add
 import sp.kx.gradlex.asFile
 import sp.kx.gradlex.assemble
 import sp.kx.gradlex.buildDir
 import sp.kx.gradlex.camelCase
+import sp.kx.gradlex.check
 import sp.kx.gradlex.create
 import sp.kx.gradlex.eff
 
@@ -45,32 +47,25 @@ fun BaseVariant.getVersion(): String {
     }
 }
 
-/*
 fun checkReadme(variant: BaseVariant) {
     tasks.create("check", variant.name, "Readme") {
         doLast {
             when (variant.name) {
                 "unstableDebug" -> {
-                    val badge = Markdown.image(
-                        text = "version",
-                        url = Badge.url(
-                            label = "version",
-                            message = variant.getVersion(),
-                            color = "2962ff",
-                        ),
-                    )
+                    val version = variant.getVersion()
                     val expected = setOf(
-                        badge,
-//                        Markdown.link("Maven", Maven.Snapshot.url(maven, variant.getVersion())), // todo
-                        "implementation(\"${maven.moduleName(variant.getVersion())}\")",
+                        "GitHub ${Markdown.link(text = version, uri = gh.release(version = version))}",
+                        "Maven ${Markdown.link("metadata", Maven.Snapshot.metadata(artifact = maven))}",
+                        "maven(\"${Maven.Snapshot.Host}\")",
+                        "implementation(\"${maven.moduleName(version = version)}\")",
+                        "gradle lib:assemble${variant.name.replaceFirstChar(Char::titlecase)}",
                     )
-                    val report = buildDir()
-                        .dir("reports/analysis/readme")
-                        .dir(variant.name)
-                        .asFile("index.html")
                     rootDir.resolve("README.md").check(
                         expected = expected,
-                        report = report,
+                        report = buildDir()
+                            .dir("reports/analysis/readme")
+                            .dir(variant.name)
+                            .asFile("index.html"),
                     )
                 }
                 else -> error("Variant \"${variant.name}\" is not supported!")
@@ -78,7 +73,6 @@ fun checkReadme(variant: BaseVariant) {
         }
     }
 }
-*/
 
 fun assemblePom(variant: BaseVariant) {
     tasks.create("assemble", variant.name, "Pom") {
@@ -167,7 +161,7 @@ android {
         val output = variant.outputs.single()
         check(output is com.android.build.gradle.internal.api.LibraryVariantOutputImpl)
         output.outputFileName = "${rootProject.name}-${variant.getVersion()}.aar"
-//        checkReadme(variant)
+        checkReadme(variant = variant)
         assemblePom(variant = variant)
         assembleSource(variant = variant)
         assembleMetadata(variant = variant)
