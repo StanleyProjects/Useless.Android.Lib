@@ -5,7 +5,7 @@ A few useless Android extensions.
 
 ## Unstable
 
-> GitHub [0.0.5u-SNAPSHOT](https://github.com/StanleyProjects/Useless.Android.Lib/releases/tag/0.0.5u-SNAPSHOT) release
+> GitHub [0.0.6u-SNAPSHOT](https://github.com/StanleyProjects/Useless.Android.Lib/releases/tag/0.0.6u-SNAPSHOT) release
 >
 > Maven [metadata](https://central.sonatype.com/repository/maven-snapshots/com/github/kepocnhh/Useless.Android.Lib/maven-metadata.xml)
 
@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.kepocnhh:Useless.Android.Lib:0.0.5u-SNAPSHOT")
+    implementation("com.github.kepocnhh:Useless.Android.Lib:0.0.6u-SNAPSHOT")
 }
 ```
 
