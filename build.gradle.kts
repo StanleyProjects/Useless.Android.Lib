@@ -27,7 +27,7 @@ tasks.register("checkLicense") {
             .asFile("index.html")
         rootDir.resolve("LICENSE").check(
             expected = emptySet(),
-            regexes = setOf("^Copyright 2\\d{3} $author${'$'}".toRegex()),
+            regexes = setOf("^Copyright 2\\d{3} $author$".toRegex()),
             report = report,
         )
     }
