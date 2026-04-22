@@ -15,11 +15,11 @@ buildscript {
     }
 }
 
-task<Delete>("clean") {
+tasks.register<Delete>("clean") {
     delete = setOf(buildDir(), buildSrc.buildDir())
 }
 
-task("checkLicense") {
+tasks.register("checkLicense") {
     doLast {
         val author = "Stanley Wintergreen" // todo
         val report = buildDir()
@@ -27,7 +27,7 @@ task("checkLicense") {
             .asFile("index.html")
         rootDir.resolve("LICENSE").check(
             expected = emptySet(),
-            regexes = setOf("^Copyright 2\\d{3} $author${'$'}".toRegex()),
+            regexes = setOf("^Copyright 2\\d{3} $author$".toRegex()),
             report = report,
         )
     }
@@ -45,7 +45,7 @@ dependencies {
     }
 }
 
-task<JavaExec>("checkCodeStyle") {
+tasks.register<JavaExec>("checkCodeStyle") {
     classpath = ktlint
     mainClass = "com.pinterest.ktlint.Main"
     val reporter = "html"
